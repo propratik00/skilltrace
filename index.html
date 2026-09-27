@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkillTrace | Outcome Intelligence</title>
+  <style>
+    :root { --navy:#102b46; --ink:#18344f; --blue:#1677c8; --sky:#eaf5ff; --green:#149a79; --mint:#e7f8f1; --orange:#f28b38; --red:#d45151; --line:#dce6ef; --muted:#63758a; --bg:#f4f8fb; --white:#ffffff; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,Segoe UI,Arial,sans-serif; color:var(--ink); background:var(--bg); }
+    button, select, input { font:inherit; }
+    header { background:linear-gradient(115deg,var(--navy),#174d72); color:white; padding:22px clamp(20px,5vw,68px) 92px; }
+    .nav { max-width:1240px; margin:auto; display:flex; align-items:center; justify-content:space-between; gap:18px; }
+    .brand { font-size:24px; font-weight:800; letter-spacing:-.6px; display:flex; align-items:center; gap:10px; }
+    .brand-mark { display:grid; place-items:center; width:35px; height:35px; border-radius:11px; background:#26b58f; color:#07263b; font-size:20px; }
+    .tag { color:#c7e7ff; font-size:13px; text-align:right; }
+    .hero { max-width:1240px; margin:42px auto 0; }
+    .hero h1 { font-size:clamp(28px,4.3vw,47px); margin:0 0 12px; letter-spacing:-1.3px; max-width:780px; }
+    .hero p { max-width:690px; margin:0; color:#d9ebf6; font-size:17px; line-height:1.55; }
+    main { max-width:1240px; margin:-55px auto 50px; padding:0 20px; }
+    .toolbar, .card, .panel { background:var(--white); border:1px solid var(--line); border-radius:18px; box-shadow:0 8px 24px rgba(27,59,83,.06); }
+    .toolbar { padding:18px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+    .data-status { font-size:14px; color:var(--muted); }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .btn { border:1px solid var(--line); background:white; color:var(--ink); padding:10px 14px; border-radius:10px; font-weight:700; cursor:pointer; }
+    .btn:hover { border-color:#96c4e5; background:#f8fbfe; }
+    .btn-primary { background:var(--green); border-color:var(--green); color:white; }
+    .btn-primary:hover { background:#0d8567; border-color:#0d8567; }
+    #outcomeInput,#demandInput { display:none; }
+    .notice { margin:18px 0; padding:15px 17px; border-radius:13px; background:#fff7e9; border:1px solid #f9deb1; color:#74430b; font-size:14px; line-height:1.5; }
+    .notice strong { color:#5f3506; }
+    .mapping { margin-top:18px; padding:22px; display:none; }
+    .mapping.visible { display:block; }
+    .mapping h2, .section-title { margin:0; font-size:20px; letter-spacing:-.35px; }
+    .mapping p, .section-subtitle { margin:7px 0 18px; color:var(--muted); font-size:14px; line-height:1.45; }
+    .map-wrap { display:grid; grid-template-columns:1fr 1fr; gap:26px; }
+    .map-title { color:var(--navy); font-weight:800; margin-bottom:10px; }
+    .field-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .field label { display:block; font-size:12px; font-weight:800; color:var(--muted); margin:0 0 5px; }
+    select { width:100%; border:1px solid #cbd9e5; color:var(--ink); background:white; border-radius:9px; padding:10px; }
+    .map-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:20px; flex-wrap:wrap; }
+    .map-help { color:var(--muted); font-size:13px; }
+    .filters { margin:22px 0 16px; display:flex; gap:12px; flex-wrap:wrap; }
+    .filter { min-width:180px; }
+    .filter label { display:block; font-size:12px; color:var(--muted); font-weight:800; margin:0 0 5px; }
+    .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:15px; }
+    .kpi { padding:19px; min-height:122px; }
+    .kpi-label { color:var(--muted); font-size:13px; font-weight:700; }
+    .kpi-value { color:var(--navy); font-size:34px; font-weight:850; letter-spacing:-1.4px; margin:13px 0 5px; }
+    .kpi-note { color:var(--muted); font-size:12px; }
+    .kpi.green .kpi-value { color:var(--green); }
+    .kpi.orange .kpi-value { color:var(--orange); }
+    .dashboard-grid { display:grid; grid-template-columns:1.4fr .9fr; gap:16px; margin-top:16px; }
+    .panel { padding:21px; }
+    .bar-chart { display:grid; gap:14px; margin-top:22px; }
+    .bar-row { display:grid; grid-template-columns:150px 1fr 45px; gap:10px; align-items:center; font-size:13px; }
+    .bar-label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--ink); font-weight:700; }
+    .track { height:10px; background:#e8f0f6; border-radius:99px; overflow:hidden; }
+    .fill { height:100%; background:linear-gradient(90deg,#2297de,var(--green)); border-radius:99px; }
+    .bar-number { text-align:right; color:var(--muted); font-size:12px; font-weight:800; }
+    .empty { padding:28px 14px; color:var(--muted); text-align:center; font-size:14px; }
+    .gap-list, .insights { display:grid; gap:10px; margin-top:18px; }
+    .gap { background:#f8fbfd; border-left:4px solid var(--orange); padding:12px; border-radius:0 9px 9px 0; }
+    .gap strong { font-size:14px; }
+    .gap small { display:block; color:var(--muted); margin-top:4px; line-height:1.35; }
+    .gap.good { border-left-color:var(--green); }
+    .recommendations { margin-top:16px; }
+    .insight { display:flex; gap:11px; padding:13px; background:var(--mint); border-radius:11px; color:#12533f; font-size:14px; line-height:1.4; }
+    .insight-icon { width:22px; flex:0 0 22px; height:22px; background:#c6ecdf; border-radius:50%; display:grid; place-items:center; font-size:13px; }
+    .table-panel { margin-top:16px; }
+    .table-wrap { overflow:auto; margin-top:16px; }
+    table { width:100%; border-collapse:collapse; min-width:680px; font-size:13px; }
+    th { text-align:left; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.45px; border-bottom:1px solid var(--line); padding:0 10px 10px; }
+    td { border-bottom:1px solid #edf2f5; padding:12px 10px; color:var(--ink); }
+    tr:last-child td { border-bottom:0; }
+    .pill { display:inline-block; padding:4px 8px; border-radius:999px; font-size:11px; font-weight:800; background:#e8f7f1; color:#127156; }
+    .pill.neutral { background:#eef4f8; color:#506b83; }
+    .guide { margin-top:16px; padding:19px 21px; background:#eff8ff; border:1px solid #cbe4f6; border-radius:15px; }
+    .guide h3 { margin:0 0 10px; color:var(--navy); font-size:16px; }
+    .guide ul { margin:0; padding-left:20px; color:#3d5f78; font-size:14px; line-height:1.6; }
+    @media (max-width:850px) { .kpis { grid-template-columns:repeat(2,1fr); } .dashboard-grid,.map-wrap { grid-template-columns:1fr; } }
+    @media (max-width:560px) { header { padding-bottom:78px; } .tag { display:none; } .field-grid { grid-template-columns:1fr; } .kpis { grid-template-columns:1fr 1fr; gap:10px; } .kpi { padding:14px; min-height:105px; } .kpi-value { font-size:27px; } .bar-row { grid-template-columns:98px 1fr 38px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <div class="brand"><span class="brand-mark">⌁</span> SkillTrace</div>
+      <div class="tag">Consent-based skilling outcome intelligence</div>
+    </div>
+    <div class="hero">
+      <h1>From training records to employment outcomes</h1>
+      <p>Upload anonymised outcome data to identify placement performance, retention, skill gaps, and the next action for every district or institute.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="toolbar">
+      <div>
+        <strong id="datasetName">Demo dataset</strong>
+        <div class="data-status" id="statusText">Showing sample outcome and employer-demand records.</div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="demoBtn" type="button">Reset to demo data</button>
+        <button class="btn" id="demandBtn" type="button">Add employer demand CSV</button>
+        <button class="btn btn-primary" id="outcomeBtn" type="button">Upload outcome CSV</button>
+        <input id="outcomeInput" type="file" accept=".csv,text/csv" />
+        <input id="demandInput" type="file" accept=".csv,text/csv" />
+      </div>
+    </section>
+
+    <div class="notice"><strong>Beginner-friendly:</strong> choose your Excel sheet, save it as a <strong>CSV</strong>, then upload it here. Your file stays in this browser and is not sent to a server. You can map the column names before analysing it.</div>
+
+    <section class="mapping panel" id="mappingPanel">
+      <h2>Map your data columns</h2>
+      <p>We detected some likely matches. Adjust them if your spreadsheet uses different names, then select <strong>Build dashboard</strong>.</p>
+      <div class="map-wrap">
+        <div>
+          <div class="map-title">Training and learner outcomes</div>
+          <div class="field-grid" id="outcomeFields"></div>
+        </div>
+        <div>
+          <div class="map-title">Employer demand, optional</div>
+          <div class="field-grid" id="demandFields"></div>
+        </div>
+      </div>
+      <div class="map-footer">
+        <div class="map-help">Required: learner ID, district, course, completion status, and placement status.</div>
+        <button class="btn btn-primary" id="applyMapping" type="button">Build dashboard</button>
+      </div>
+    </section>
+
+    <section class="filters">
+      <div class="filter"><label for="districtFilter">District</label><select id="districtFilter"></select></div>
+      <div class="filter"><label for="instituteFilter">Institute</label><select id="instituteFilter"></select></div>
+      <div class="filter"><label for="courseFilter">Course</label><select id="courseFilter"></select></div>
+    </section>
+
+    <section class="kpis">
+      <article class="card kpi"><div class="kpi-label">Learners tracked</div><div class="kpi-value" id="totalLearners">0</div><div class="kpi-note">Selected records</div></article>
+      <article class="card kpi green"><div class="kpi-label">Completion rate</div><div class="kpi-value" id="completionRate">—</div><div class="kpi-note" id="completionNote">Training completed</div></article>
+      <article class="card kpi green"><div class="kpi-label">Placement rate</div><div class="kpi-value" id="placementRate">—</div><div class="kpi-note" id="placementNote">Placed or self-employed</div></article>
+      <article class="card kpi orange"><div class="kpi-label">Retention rate</div><div class="kpi-value" id="retentionRate">—</div><div class="kpi-note" id="retentionNote">Placed learners retained</div></article>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="panel">
+        <h2 class="section-title">Placement by district</h2>
+        <p class="section-subtitle">Which districts convert training into livelihoods most effectively?</p>
+        <div class="bar-chart" id="districtChart"></div>
+      </article>
+      <article class="panel">
+        <h2 class="section-title">Skill demand versus supply</h2>
+        <p class="section-subtitle">Gaps use employer demand when a demand CSV is available.</p>
+        <div class="gap-list" id="skillGaps"></div>
+      </article>
+    </section>
+
+    <section class="panel recommendations">
+      <h2 class="section-title">Recommended next actions</h2>
+      <p class="section-subtitle">Simple rule-based insights generated from the selected data.</p>
+      <div class="insights" id="insights"></div>
+    </section>
+
+    <section class="panel table-panel">
+      <h2 class="section-title">Outcome records</h2>
+      <p class="section-subtitle">A compact preview of the information used in this dashboard.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Learner ID</th><th>District</th><th>Institute</th><th>Course</th><th>Skills</th><th>Completion</th><th>Placement</th><th>Retention</th></tr></thead>
+          <tbody id="recordTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="guide">
+      <h3>Fast demo plan</h3>
+      <ul>
+        <li>Upload anonymised learner outcomes first. Keep only the columns needed for the dashboard.</li>
+        <li>Use the filters to tell one clear story, such as low placement in a district or a course with weak retention.</li>
+        <li>Add an employer-demand CSV only if you have one. Otherwise, demonstrate outcome tracking and explain the demand module as the next phase.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    const demoOutcomes = [
+      {"Learner ID":"L-1001","District":"Pune","Institute":"Pune Skills Hub","Course":"Data Analytics","Skills":"Excel, SQL, Power BI","Completion Status":"Completed","Placement Status":"Placed","Retention Status":"Retained"},
+      {"Learner ID":"L-1002","District":"Pune","Institute":"Pune Skills Hub","Course":"Data Analytics","Skills":"Excel, SQL","Completion Status":"Completed","Placement Status":"Placed","Retention Status":"Retained"},
+      {"Learner ID":"L-1003","District":"Pune","Institute":"Maha Tech Academy","Course":"Web Development","Skills":"HTML, CSS, JavaScript","Completion Status":"Completed","Placement Status":"Not Placed","Retention Status":"Not Available"},
+      {"Learner ID":"L-1004","District":"Mumbai","Institute":"Mumbai Career Centre","Course":"Customer Support","Skills":"Communication, CRM, Excel","Completion Status":"Completed","Placement Status":"Placed","Retention Status":"Retained"},
+      {"Learner ID":"L-1005","District":"Mumbai","Institute":"Mumbai Career Centre","Course":"Data Analytics","Skills":"Excel, Power BI","Completion Status":"Completed","Placement Status":"Not Placed","Retention Status":"Not Available"},
+      {"Learner ID":"L-1006","District":"Mumbai","Institute":"Maha Tech Academy","Course":"Web Development","Skills":"HTML, CSS, JavaScript, React","Completion Status":"Completed","Placement Status":"Placed","Retention Status":"Not Retained"},
+      {"Learner ID":"L-1007","District":"Nashik","Institute":"Nashik Skill Centre","Course":"Retail Operations","Skills":"Sales, Communication, Excel","Completion Status":"Completed","Placement Status":"Placed","Retention Status":"Retained"},
+      {"Learner ID":"L-1008","District":"Nashik","Institute":"Nashik Skill Centre","Course":"Data Analytics","Skills":"Excel, SQL","Completion Status":"Dropped","Placement Status":"Not Placed","Retention Status":"Not Available"},
+      {"Learner ID":"L-1009","District":"Nagpur","Institute":"Nagpur Digital Academy","Course":"Data Analytics","Skills":"Excel, SQL, Python","Completion Status":"Completed","Placement Status":"Placed","Retention Status":"Retained"},
+      {"Learner ID":"L-1010","District":"Nagpur","Institute":"Nagpur Digital Academy","Course":"Web Development","Skills":"HTML, CSS, JavaScript","Completion Status":"Completed","Placement Status":"Not Placed","Retention Status":"Not Available"},
+      {"Learner ID":"L-1011","District":"Nagpur","Institute":"Vidarbha Career Lab","Course":"Customer Support","Skills":"Communication, CRM","Completion Status":"Completed","Placement Status":"Placed","Retention Status":"Retained"},
+      {"Learner ID":"L-1012","District":"Nashik","Institute":"Nashik Skill Centre","Course":"Retail Operations","Skills":"Sales, Communication","Completion Status":"Completed","Placement Status":"Not Placed","Retention Status":"Not Available"}
+    ];
+    const demoDemand = [
+      {"District":"Pune","Job Role":"Junior Data Analyst","Required Skills":"SQL, Power BI, Python","Vacancies":"8"},
+      {"District":"Mumbai","Job Role":"Web Developer","Required Skills":"JavaScript, React, SQL","Vacancies":"10"},
+      {"District":"Nagpur","Job Role":"Data Analyst","Required Skills":"SQL, Python, Power BI","Vacancies":"6"},
+      {"District":"Nashik","Job Role":"Retail Associate","Required Skills":"Sales, Communication, CRM","Vacancies":"7"}
+    ];
+
+    const outcomeLabels = {
+      learnerId:'Learner ID', district:'District', institute:'Institute', course:'Course', skills:'Learner skills',
+      completion:'Completion status', placement:'Placement status', retention:'Retention status'
+    };
+    const demandLabels = { district:'District', role:'Job role', skills:'Required skills', vacancies:'Vacancies' };
+    const synonyms = {
+      learnerId:['learner id','student id','candidate id','trainee id','id'], district:['district','city','location'], institute:['institute','training provider','provider','centre','center'],
+      course:['course','program','programme','training'], skills:['skills','learner skills','skill'], completion:['completion status','completion','training status','status'],
+      placement:['placement status','placement','employment status','employed'], retention:['retention status','retention','job retention'],
+      role:['job role','role','designation'], vacancies:['vacancies','vacancy','openings','positions'], requiredSkills:['required skills','skills required','job skills']
+    };
+    let rawOutcomes = demoOutcomes, rawDemand = demoDemand, outcomeMap = {}, demandMap = {}, loadedOutcomeName = 'Demo dataset', loadedDemandName = 'Demo employer demand';
+    const el = id => document.getElementById(id);
+
+    function clean(value) { return String(value ?? '').trim(); }
+    function key(value) { return clean(value).toLowerCase().replace(/[_-]/g,' ').replace(/\s+/g,' '); }
+    function findHeader(headers, terms) { return headers.find(h => terms.includes(key(h))) || headers.find(h => terms.some(t => key(h).includes(t))); }
+    function mapHeaders() {
+      const outcomeHeaders = Object.keys(rawOutcomes[0] || {}), demandHeaders = Object.keys(rawDemand[0] || {});
+      outcomeMap = {
+        learnerId:findHeader(outcomeHeaders,synonyms.learnerId), district:findHeader(outcomeHeaders,synonyms.district), institute:findHeader(outcomeHeaders,synonyms.institute),
+        course:findHeader(outcomeHeaders,synonyms.course), skills:findHeader(outcomeHeaders,synonyms.skills), completion:findHeader(outcomeHeaders,synonyms.completion),
+        placement:findHeader(outcomeHeaders,synonyms.placement), retention:findHeader(outcomeHeaders,synonyms.retention)
+      };
+      demandMap = {
+        district:findHeader(demandHeaders,synonyms.district), role:findHeader(demandHeaders,synonyms.role),
+        skills:findHeader(demandHeaders,synonyms.requiredSkills) || findHeader(demandHeaders,synonyms.skills), vacancies:findHeader(demandHeaders,synonyms.vacancies)
+      };
+    }
+    function makeSelect(group, mapKey, label, headers, value) {
+      const wrap = document.createElement('div'); wrap.className='field';
+      const labelEl = document.createElement('label'); labelEl.textContent=label; labelEl.htmlFor=group+'-'+mapKey;
+      const select = document.createElement('select'); select.id=group+'-'+mapKey; select.dataset.group=group; select.dataset.mapKey=mapKey;
+      select.innerHTML='<option value="">Not available</option>'+headers.map(h=>'<option value="'+escapeHtml(h)+'">'+escapeHtml(h)+'</option>').join('');
+      select.value=value || ''; wrap.append(labelEl,select); return wrap;
+    }
+    function renderMapping() {
+      const outcomeHeaders=Object.keys(rawOutcomes[0]||{}), demandHeaders=Object.keys(rawDemand[0]||{});
+      el('outcomeFields').innerHTML=''; el('demandFields').innerHTML='';
+      Object.entries(outcomeLabels).forEach(([k,label])=>el('outcomeFields').appendChild(makeSelect('outcome',k,label,outcomeHeaders,outcomeMap[k])));
+      Object.entries(demandLabels).forEach(([k,label])=>el('demandFields').appendChild(makeSelect('demand',k,label,demandHeaders,demandMap[k])));
+    }
+    function applyMappingFromUI() {
+      document.querySelectorAll('select[data-group="outcome"]').forEach(s=>outcomeMap[s.dataset.mapKey]=s.value);
+      document.querySelectorAll('select[data-group="demand"]').forEach(s=>demandMap[s.dataset.mapKey]=s.value);
+      const missing=['learnerId','district','course','completion','placement'].filter(k=>!outcomeMap[k]);
+      if(missing.length) { alert('Please map these learner columns before continuing: '+missing.map(k=>outcomeLabels[k]).join(', ')); return; }
+      el('mappingPanel').classList.remove('visible'); buildFilters(); render();
+    }
+    function parseCSV(text) {
+      const rows=[]; let row=[], cell='', quote=false;
+      for(let i=0;i<text.length;i++) { const c=text[i], next=text[i+1];
+        if(c==='"' && quote && next==='"') { cell+='"'; i++; }
+        else if(c==='"') quote=!quote;
+        else if(c===',' && !quote) { row.push(cell); cell=''; }
+        else if((c==='\n' || c==='\r') && !quote) { if(c==='\r' && next==='\n') i++; row.push(cell); if(row.some(v=>clean(v))) rows.push(row); row=[]; cell=''; }
+        else cell+=c;
+      }
+      row.push(cell); if(row.some(v=>clean(v))) rows.push(row);
+      const headers=(rows.shift()||[]).map(h=>clean(h));
+      return rows.map(r=>Object.fromEntries(headers.map((h,i)=>[h,clean(r[i])]))).filter(o=>Object.values(o).some(v=>v));
+    }
+    function loadCSV(file, target) {
+      const reader=new FileReader();
+      reader.onload=event=>{
+        const data=parseCSV(event.target.result);
+        if(!data.length) { alert('We could not find rows in that CSV. Please check the file and try again.'); return; }
+        if(target==='outcome') { rawOutcomes=data; loadedOutcomeName=file.name; }
+        else { rawDemand=data; loadedDemandName=file.name; }
+        mapHeaders(); renderMapping(); el('mappingPanel').classList.add('visible');
+        el('statusText').textContent='Column mapping is ready. Review the matches, then build your dashboard.';
+      };
+      reader.readAsText(file);
+    }
+    function getOutcomeRows() {
+      return rawOutcomes.map((r,i)=>({
+        learnerId:clean(r[outcomeMap.learnerId]) || 'Record '+(i+1), district:clean(r[outcomeMap.district]) || 'Unspecified', institute:clean(r[outcomeMap.institute]) || 'Unspecified',
+        course:clean(r[outcomeMap.course]) || 'Unspecified', skills:splitSkills(r[outcomeMap.skills]), completion:yes(r[outcomeMap.completion]), placed:yes(r[outcomeMap.placement]), retained:yes(r[outcomeMap.retention]),
+        completionText:clean(r[outcomeMap.completion]) || 'Not available', placementText:clean(r[outcomeMap.placement]) || 'Not available', retentionText:clean(r[outcomeMap.retention]) || 'Not available'
+      }));
+    }
+    function getDemandRows() {
+      if(!demandMap.skills) return [];
+      return rawDemand.map(r=>({ district:clean(r[demandMap.district])||'Unspecified', role:clean(r[demandMap.role])||'Role not provided', skills:splitSkills(r[demandMap.skills]), vacancies:Number(clean(r[demandMap.vacancies]))||1 }));
+    }
+    function splitSkills(value) { return clean(value).split(/[,;|/]/).map(s=>s.trim()).filter(Boolean); }
+    function yes(value) { const v=key(value); return ['yes','completed','complete','placed','employed','retained','active','self employed','self-employed','apprenticeship','apprentice'].some(x=>v===x || v.includes(x)); }
+    function rate(n,d) { return d ? Math.round(n/d*100)+'%' : '—'; }
+    function escapeHtml(value) { return String(value ?? '').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+    function unique(values) { return [...new Set(values.filter(Boolean))].sort(); }
+    function buildFilters() {
+      const rows=getOutcomeRows();
+      setOptions('districtFilter',unique(rows.map(r=>r.district)),'All districts'); setOptions('instituteFilter',unique(rows.map(r=>r.institute)),'All institutes'); setOptions('courseFilter',unique(rows.map(r=>r.course)),'All courses');
+    }
+    function setOptions(id, values, first) { const old=el(id).value; el(id).innerHTML='<option value="">'+first+'</option>'+values.map(v=>'<option value="'+escapeHtml(v)+'">'+escapeHtml(v)+'</option>').join(''); el(id).value=values.includes(old)?old:''; }
+    function filteredRows() { return getOutcomeRows().filter(r=>(!el('districtFilter').value||r.district===el('districtFilter').value)&&(!el('instituteFilter').value||r.institute===el('instituteFilter').value)&&(!el('courseFilter').value||r.course===el('courseFilter').value)); }
+    function aggregate(rows, field) { const map={}; rows.forEach(r=>{ const k=r[field]; (map[k] ||= []).push(r); }); return Object.entries(map).map(([name,list])=>({name,list,placed:list.filter(r=>r.placed).length,total:list.length,rate:list.length?Math.round(list.filter(r=>r.placed).length/list.length*100):0})).sort((a,b)=>b.rate-a.rate); }
+    function render() {
+      const rows=filteredRows(), completed=rows.filter(r=>r.completion).length, placed=rows.filter(r=>r.placed).length, retained=rows.filter(r=>r.retained).length;
+      el('datasetName').textContent=loadedOutcomeName; el('statusText').textContent=rows.length+' learner records shown'+(rawDemand.length?' with '+rawDemand.length+' employer-demand records.':'.');
+      el('totalLearners').textContent=rows.length; el('completionRate').textContent=rate(completed,rows.length); el('placementRate').textContent=rate(placed,completed||rows.length); el('retentionRate').textContent=rate(retained,placed);
+      el('completionNote').textContent=completed+' completed training'; el('placementNote').textContent=placed+' placed or self-employed'; el('retentionNote').textContent=retained+' retained in employment';
+      renderDistricts(rows); renderGaps(rows); renderInsights(rows); renderTable(rows);
+    }
+    function renderDistricts(rows) {
+      const items=aggregate(rows,'district'); const holder=el('districtChart');
+      holder.innerHTML=items.length?items.map(x=>'<div class="bar-row"><div class="bar-label">'+escapeHtml(x.name)+'</div><div class="track"><div class="fill" style="width:'+x.rate+'%"></div></div><div class="bar-number">'+x.rate+'%</div></div>').join(''):'<div class="empty">No learner records match these filters.</div>';
+    }
+    function renderGaps(rows) {
+      const supply={}; rows.forEach(r=>r.skills.forEach(s=>{ const k=key(s); if(k) supply[k]=(supply[k]||0)+1; }));
+      const demand={}; getDemandRows().filter(r=>!el('districtFilter').value||r.district===el('districtFilter').value).forEach(r=>r.skills.forEach(s=>{const k=key(s); if(k) demand[k]=(demand[k]||0)+r.vacancies;}));
+      const holder=el('skillGaps');
+      if(Object.keys(demand).length) {
+        const items=Object.keys(demand).map(k=>({skill:k,demand:demand[k],supply:supply[k]||0,gap:demand[k]-(supply[k]||0)})).sort((a,b)=>b.gap-a.gap).slice(0,4);
+        holder.innerHTML=items.map(x=>'<div class="gap '+(x.gap<=0?'good':'')+'"><strong>'+escapeHtml(titleCase(x.skill))+'</strong><small>Employer demand: '+x.demand+' openings · Learners with skill: '+x.supply+(x.gap>0?' · Gap: '+x.gap:' · Demand covered')+'</small></div>').join('');
+      } else {
+        const top=Object.entries(supply).sort((a,b)=>b[1]-a[1]).slice(0,4);
+        holder.innerHTML=top.length?top.map(([skill,count])=>'<div class="gap good"><strong>'+escapeHtml(titleCase(skill))+'</strong><small>'+count+' learner'+(count===1?'':'s')+' report this skill. Add an employer-demand CSV to calculate gaps.</small></div>').join(''):'<div class="empty">Map a learner skills column to see the supply profile.</div>';
+      }
+    }
+    function renderInsights(rows) {
+      const messages=[]; const course=aggregate(rows,'course'), district=aggregate(rows,'district'); const placed=rows.filter(r=>r.placed).length;
+      if(course.length) { const weakest=[...course].sort((a,b)=>a.rate-b.rate)[0]; messages.push('Review '+weakest.name+'. Its placement rate is '+weakest.rate+'% across '+weakest.total+' tracked learner'+(weakest.total===1?'':'s')+'.'); }
+      if(district.length) { const best=district[0]; messages.push(best.name+' currently shows the strongest placement rate at '+best.rate+'%. Review its course mix and institute practices for replication.'); }
+      if(placed && rows.filter(r=>r.retained).length<placed) messages.push('Add assisted follow-ups for placed learners without a retained-employment confirmation. This improves retention data quality.');
+      if(!getDemandRows().length) messages.push('Add employer-demand data next to turn this outcome dashboard into a skill-gap intelligence tool.');
+      el('insights').innerHTML=messages.map(m=>'<div class="insight"><span class="insight-icon">✓</span><span>'+escapeHtml(m)+'</span></div>').join('') || '<div class="empty">Upload outcome data to generate recommendations.</div>';
+    }
+    function renderTable(rows) {
+      el('recordTable').innerHTML=rows.slice(0,10).map(r=>'<tr><td>'+escapeHtml(r.learnerId)+'</td><td>'+escapeHtml(r.district)+'</td><td>'+escapeHtml(r.institute)+'</td><td>'+escapeHtml(r.course)+'</td><td>'+escapeHtml(r.skills.join(', ')||'Not available')+'</td><td><span class="pill neutral">'+escapeHtml(r.completionText)+'</span></td><td><span class="pill">'+escapeHtml(r.placementText)+'</span></td><td><span class="pill neutral">'+escapeHtml(r.retentionText)+'</span></td></tr>').join('') || '<tr><td colspan="8" class="empty">No records match the current filters.</td></tr>';
+    }
+    function titleCase(s) { return s.replace(/\b\w/g,c=>c.toUpperCase()); }
+    el('outcomeBtn').addEventListener('click',()=>el('outcomeInput').click()); el('demandBtn').addEventListener('click',()=>el('demandInput').click());
+    el('outcomeInput').addEventListener('change',e=>e.target.files[0]&&loadCSV(e.target.files[0],'outcome')); el('demandInput').addEventListener('change',e=>e.target.files[0]&&loadCSV(e.target.files[0],'demand'));
+    el('demoBtn').addEventListener('click',()=>{ rawOutcomes=demoOutcomes; rawDemand=demoDemand; loadedOutcomeName='Demo dataset'; loadedDemandName='Demo employer demand'; mapHeaders(); buildFilters(); render(); });
+    el('applyMapping').addEventListener('click',applyMappingFromUI); ['districtFilter','instituteFilter','courseFilter'].forEach(id=>el(id).addEventListener('change',render));
+    mapHeaders(); buildFilters(); render();
+  </script>
+</body>
+</html>
